@@ -1,0 +1,226 @@
+<!doctype html>
+<html lang="en">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <meta name="description" content="Medical Document Intelligence System for extracting medical entities, checking medication risks, and creating simple health summaries." />
+    <title>MedIntel AI | Medical Document Intelligence</title>
+    <link rel="stylesheet" href="/src/styles.css" />
+    <script src="/config.js"></script>
+  </head>
+  <body>
+    <div class="app-shell">
+      <aside class="sidebar">
+        <div class="brand">
+          <div class="brand-mark">M+</div>
+          <div>
+            <strong>MedIntel AI</strong>
+            <span>Clinical document intelligence</span>
+          </div>
+        </div>
+        <nav class="nav-links">
+          <a href="#overview" class="active">Overview</a>
+          <a href="#analyze">Analyze</a>
+          <a href="#results">Results</a>
+          <a href="#graph">Health Graph</a>
+          <a href="#safety">Medication Safety</a>
+          <a href="#settings">Settings</a>
+        </nav>
+        <div class="status-card" id="backendStatus">
+          <span class="status-dot pending"></span>
+          <div>
+            <strong>Backend status</strong>
+            <p>Checking API connection...</p>
+          </div>
+        </div>
+      </aside>
+
+      <main class="main-content">
+        <header class="topbar">
+          <button class="mobile-menu" id="mobileMenuBtn" aria-label="Open menu">☰</button>
+          <div>
+            <p class="eyebrow">Healthcare AI workspace</p>
+            <h1>Medical Document Intelligence System</h1>
+          </div>
+          <div class="top-actions">
+            <button class="ghost-btn" id="loadSampleBtn">Load sample</button>
+            <button class="primary-btn" onclick="document.querySelector('#analyze').scrollIntoView({behavior:'smooth'})">Start analysis</button>
+          </div>
+        </header>
+
+        <section class="hero-grid" id="overview">
+          <div class="hero-card glass-card">
+            <p class="eyebrow">Extract • Explain • Protect</p>
+            <h2>Turn messy prescriptions and reports into structured health intelligence.</h2>
+            <p class="hero-copy">Upload a medical report, prescription, discharge summary, lab report, or paste raw text. The system extracts entities, highlights possible risks, builds a patient health graph, creates reminders, and explains everything in simple language.</p>
+            <div class="hero-actions">
+              <button class="primary-btn" onclick="document.querySelector('#analyze').scrollIntoView({behavior:'smooth'})">Analyze a document</button>
+              <button class="secondary-btn" id="sampleHealthCheckBtn">Test backend</button>
+            </div>
+          </div>
+          <div class="metric-grid">
+            <article class="metric-card">
+              <span>01</span>
+              <strong>Entity extraction</strong>
+              <p>Patient, diagnosis, medication, allergies, labs, vitals.</p>
+            </article>
+            <article class="metric-card">
+              <span>02</span>
+              <strong>Safety screening</strong>
+              <p>Drug interaction and allergy-aware alert support.</p>
+            </article>
+            <article class="metric-card">
+              <span>03</span>
+              <strong>Knowledge graph</strong>
+              <p>Visual patient-context graph for fast understanding.</p>
+            </article>
+            <article class="metric-card">
+              <span>04</span>
+              <strong>Simple insights</strong>
+              <p>Plain-language summary for non-technical users.</p>
+            </article>
+          </div>
+        </section>
+
+        <section class="panel api-panel" id="settings">
+          <div>
+            <p class="eyebrow">Connection</p>
+            <h2>API settings</h2>
+            <p>Vercel should inject this through <code>NEXT_PUBLIC_API_URL</code>. You can also override it here for quick testing.</p>
+          </div>
+          <div class="api-row">
+            <input id="apiUrlInput" type="url" placeholder="https://your-render-backend.onrender.com" />
+            <button class="secondary-btn" id="saveApiUrlBtn">Save API URL</button>
+          </div>
+        </section>
+
+        <section class="workspace-grid" id="analyze">
+          <div class="panel input-panel">
+            <div class="section-heading">
+              <div>
+                <p class="eyebrow">Document analysis</p>
+                <h2>Upload or paste medical text</h2>
+              </div>
+              <span class="pill">OCR-ready backend</span>
+            </div>
+
+            <div class="tabs" role="tablist">
+              <button class="tab active" data-tab="text">Paste text</button>
+              <button class="tab" data-tab="upload">Upload file</button>
+            </div>
+
+            <form id="textForm" class="tab-content active">
+              <label>Document type</label>
+              <select id="documentType">
+                <option value="medical_report">Medical report</option>
+                <option value="prescription">Prescription</option>
+                <option value="lab_report">Lab report</option>
+                <option value="discharge_summary">Discharge summary</option>
+              </select>
+
+              <label>Medical document text</label>
+              <textarea id="documentText" rows="11" placeholder="Paste prescription, lab report, or discharge summary text here..."></textarea>
+
+              <label>Additional patient notes optional</label>
+              <textarea id="patientNotes" rows="3" placeholder="Example: Patient reported dizziness after starting medication..."></textarea>
+
+              <div class="form-actions">
+                <button class="primary-btn" type="submit">Analyze text</button>
+                <button class="ghost-btn" type="button" id="clearBtn">Clear</button>
+              </div>
+            </form>
+
+            <form id="uploadForm" class="tab-content">
+              <label>Document type</label>
+              <select id="uploadDocumentType">
+                <option value="medical_report">Medical report</option>
+                <option value="prescription">Prescription</option>
+                <option value="lab_report">Lab report</option>
+                <option value="discharge_summary">Discharge summary</option>
+              </select>
+
+              <label>Upload PDF or image</label>
+              <div class="dropzone" id="dropzone">
+                <input id="fileInput" type="file" accept=".pdf,.png,.jpg,.jpeg,.txt" />
+                <strong>Drop a file here or click to upload</strong>
+                <p>PDF, PNG, JPG, JPEG, or TXT. Max size depends on your Render backend setting.</p>
+                <span id="fileName">No file selected</span>
+              </div>
+
+              <label>Additional patient notes optional</label>
+              <textarea id="uploadPatientNotes" rows="3" placeholder="Add context that may help the model interpret the document..."></textarea>
+
+              <div class="form-actions">
+                <button class="primary-btn" type="submit">Analyze upload</button>
+                <button class="ghost-btn" type="button" id="resetUploadBtn">Reset</button>
+              </div>
+            </form>
+          </div>
+
+          <div class="panel result-preview" id="results">
+            <div class="section-heading">
+              <div>
+                <p class="eyebrow">Live output</p>
+                <h2>Clinical intelligence dashboard</h2>
+              </div>
+              <span class="pill" id="analysisState">Waiting</span>
+            </div>
+            <div id="emptyState" class="empty-state">
+              <div class="empty-icon">⚕</div>
+              <h3>Results will appear here</h3>
+              <p>Start with the sample report or upload your own document. The dashboard will show extracted information, alerts, interactions, graph, and simple-language insights.</p>
+            </div>
+            <div id="loadingState" class="loading-state hidden">
+              <div class="spinner"></div>
+              <h3>Analyzing medical document...</h3>
+              <p>Render free instances may wake slowly on the first request. Give it a moment.</p>
+            </div>
+            <div id="resultsContent" class="hidden"></div>
+          </div>
+        </section>
+
+        <section class="dashboard-grid hidden" id="dashboardBlocks">
+          <article class="panel" id="graph">
+            <div class="section-heading">
+              <div>
+                <p class="eyebrow">Knowledge graph</p>
+                <h2>Patient health relationship map</h2>
+              </div>
+              <span class="pill">Interactive</span>
+            </div>
+            <div class="graph-layout">
+              <svg id="graphSvg" viewBox="0 0 900 520" role="img" aria-label="Medical knowledge graph"></svg>
+              <div class="node-details" id="nodeDetails">
+                <strong>Select a node</strong>
+                <p>Click a graph node to inspect its medical context.</p>
+              </div>
+            </div>
+          </article>
+
+          <article class="panel" id="safety">
+            <div class="section-heading">
+              <div>
+                <p class="eyebrow">Medication safety</p>
+                <h2>Drug interaction quick checker</h2>
+              </div>
+              <span class="pill">Decision support</span>
+            </div>
+            <div class="checker-row">
+              <input id="manualMeds" placeholder="Metformin, Lisinopril, Aspirin" />
+              <button class="secondary-btn" id="checkMedsBtn">Check</button>
+            </div>
+            <div id="manualInteractionResults" class="mini-results"></div>
+          </article>
+        </section>
+
+        <section class="panel safety-notice">
+          <strong>Medical safety notice</strong>
+          <p>This application is educational decision-support only. It does not replace a doctor, pharmacist, hospital, or emergency service. Always confirm medication decisions with a licensed clinician.</p>
+        </section>
+      </main>
+    </div>
+
+    <div id="toast" class="toast hidden"></div>
+    <script type="module" src="/src/app.js"></script>
+  </body>
+</html>
